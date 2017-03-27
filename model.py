@@ -21,56 +21,96 @@ class User(db.Model):
     user_id = db.Column(db.Integer,
                         autoincrement=True,
                         primary_key=True)
-    email = db.Column(db.String(64), nullable=True)
-    password = db.Column(db.String(64), nullable=True)
-    age = db.Column(db.Integer, nullable=True)
-    zipcode = db.Column(db.String(15), nullable=True)
+    email = db.Column(db.String(30), nullable=False) # this is the username
+    password = db.Column(db.String(30), nullable=False)
+    first_name = db.Column(db.String(30), nullable=False)
+    last_name = db.Column(db.String(30), nullable=False)
+    phone = db.Column(db.String(15), nullable=True)
+    address1 = db.Column(db.String(64), nullable=True)
+    address2 = db.Column(db.String(64), nullable=True)        
+    city = db.Column(db.String(15), nullable=True)
+    state = db.Column(db.String(10), nullable=True)
+    country = db.Column(db.String(10), nullable=True)    
+    zipcode = db.Column(db.String(10), nullable=True)
 
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return "<User user_id=%s email=%s>" % (self.user_id,
-                                               self.email)
+        return "<User first_name=%s last_name=%s user_id=%s email=%s>" 
+        % (self.first_name, self.last_name, self.user_id, self.email)
+
+
+class Animal(db.Model):
+    """Animals on BFF Finder website. Dogs and cats only."""
+
+    __tablename__ = "animals"
+
+    animal_id = db.Column(db.Integer,
+                         autoincrement=True,
+                         primary_key=True)
+    shelter_id = db.Column(db.Integer, nullable=False)
+    species = db.Column(db.String(64), nullable=False)
+    name = db.Column(db.String(64), nullable=True)    
+    breed = db.Column(db.String(64), nullable=True)
+    age = db.Column(db.String(64), nullable=True)
+    gender = db.Column(db.String(64), nullable=True)
+    size = db.Column(db.String(64), nullable=True)
+    description = db.Column(db.String(500), nullable=True)
+    availability = db.Column(db.String(64), nullable=True)# changes when api is called
+    last_update = db.Column(db.DateTime)# changes when api is called
+    url_photo = db.Column(db.String(200))
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+
+        return "<Animal animal_id=%s name=%s breed=%s age=%s gender=%s>" 
+        % (self.animal_id, self.name, self.breed, self.age, self.gender)
 
 
 class Shelter(db.Model):
-    """Movie on ratings website."""
+    """Shelter info on BFF Finder website."""
 
-    __tablename__ = "movies"
+    __tablename__ = "shelters"
 
-    movie_id = db.Column(db.Integer,
-                         autoincrement=True,
-                         primary_key=True)
-    title = db.Column(db.String(100))
-    released_at = db.Column(db.DateTime)
-    imdb_url = db.Column(db.String(200))
-
-    def __repr__(self):
-        """Provide helpful representation when printed."""
-
-        return "<Movie movie_id=%s title=%s>" % (self.movie_id,
-                                                 self.title)
-
-
-class Pet(db.Model):
-    """Rating of a movie by a user."""
-
-    __tablename__ = "ratings"
-
-    rating_id = db.Column(db.Integer,
+    shelter_id = db.Column(db.Integer,
                           autoincrement=True,
                           primary_key=True)
-    movie_id = db.Column(db.Integer)
-    user_id = db.Column(db.Integer)
-    score = db.Column(db.Integer)
+    name = db.Column(db.String(64), nullable=False)
+    email = db.Column(db.String(30), nullable=False)
+    phone = db.Column(db.String(15), nullable=True)
+    address1 = db.Column(db.String(64), nullable=False)
+    address2 = db.Column(db.String(64), nullable=True)        
+    city = db.Column(db.String(15), nullable=False)
+    state = db.Column(db.String(10), nullable=False)
+    country = db.Column(db.String(10), nullable=False)    
+    zipcode = db.Column(db.String(10), nullable=False)
+    latitude = db.Column(db.String(64) nullable=True)
+    longitude = db.Column(db.String(64) nullable=True)
 
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        s = "<Rating rating_id=%s movie_id=%s user_id=%s score=%s>"
-        return s % (self.rating_id, self.movie_id, self.user_id,
-                    self.score)
+        s = "<Shelter name=%s email=%s city=%s state=%s shelter_id=%s>"
+        return s % (self.name, self.email, self.city, self.state, self.shelter_id)
 
+class User_Animal(db.Model):
+    """Association table that links users to animals in the BFF website."""
+
+    __tablename__ = "users_animals"
+
+    user_animal_id = db.Column(db.Integer,
+                          autoincrement=True,
+                          primary_key=True)
+    animal_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+
+    # Define relationship to user
+    user = db.relationship("User",
+                           backref=db.backref("users_animals"))
+
+    # Define relationship to animal
+    animal = db.relationship("Animal",
+                            backref=db.backref("users_animals"))
 
 #####################################################################
 # Helper functions

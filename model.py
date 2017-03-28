@@ -36,8 +36,8 @@ class User(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return "<User first_name=%s last_name=%s user_id=%s email=%s>" 
-        % (self.first_name, self.last_name, self.user_id, self.email)
+        s =  "<User first_name=%s last_name=%s user_id=%s email=%s>" 
+        return s % (self.first_name, self.last_name, self.user_id, self.email)
 
 
 class Animal(db.Model):
@@ -63,8 +63,8 @@ class Animal(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return "<Animal animal_id=%s name=%s breed=%s age=%s gender=%s>" 
-        % (self.animal_id, self.name, self.breed, self.age, self.gender)
+        s = "<Animal animal_id=%s name=%s breed=%s age=%s gender=%s>" 
+        return s % (self.animal_id, self.name, self.breed, self.age, self.gender)
 
 
 class Shelter(db.Model):
@@ -84,8 +84,8 @@ class Shelter(db.Model):
     state = db.Column(db.String(10), nullable=False)
     country = db.Column(db.String(10), nullable=False)    
     zipcode = db.Column(db.String(10), nullable=False)
-    latitude = db.Column(db.String(64) nullable=True)
-    longitude = db.Column(db.String(64) nullable=True)
+    latitude = db.Column(db.String(64), nullable=True)
+    longitude = db.Column(db.String(64), nullable=True)
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -93,10 +93,10 @@ class Shelter(db.Model):
         s = "<Shelter name=%s email=%s city=%s state=%s shelter_id=%s>"
         return s % (self.name, self.email, self.city, self.state, self.shelter_id)
 
-class User_Animal(db.Model):
+class UserAnimal(db.Model):
     """Association table that links users to animals in the BFF website."""
 
-    __tablename__ = "users_animals"
+    __tablename__ = "usersanimals"
 
     user_animal_id = db.Column(db.Integer,
                           autoincrement=True,
@@ -106,11 +106,16 @@ class User_Animal(db.Model):
 
     # Define relationship to user
     user = db.relationship("User",
-                           backref=db.backref("users_animals"))
+                           backref=db.backref("usersanimals"))
 
     # Define relationship to animal
     animal = db.relationship("Animal",
-                            backref=db.backref("users_animals"))
+                            backref=db.backref("usersanimals"))
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+        s = "<user_animal_id=%s animal_id=%s, user_id=%s>"
+        return s %(self.user_animal_id, self.animal_id, self.user_id)
 
 #####################################################################
 # Helper functions

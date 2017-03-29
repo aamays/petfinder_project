@@ -30,14 +30,14 @@ location = raw_input("Enter your zip code or city/State to find the animal neare
 age = raw_input("Would you like to adopt a Baby, Young, Adult or Senior pet? ")
 gender = raw_input("Male, Female?  ")
 
-for pet in api.pet_find(location=location,
+pet in api.pet_find(location=location,
                             animal=species, 
                             age=age,
                             sex=gender, 
                             output="basic", 
                             count=25):
 
-    import pdb; pdb.set_trace() # ability to pause program, for debugging 
+import pdb; pdb.set_trace() # ability to pause program, for debugging 
 
-    print("%s - %s - %s" % (pet["animal"], pet["name"], pet["sex"]))
+print pet
 # TODO: Find homes for these guys.

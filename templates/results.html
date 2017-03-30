@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<h1>SEARCH RESULTS</h1>
+
+<p>You searched for a {{ animal }}, of {{ age.lower() }} age, size {{ size }} in location {{ location }}.<br>
+Here are your results: </p>
+
+<ul>
+
+  {% for pet in pets %}
+    <li>
+    {% for key, value in pet.items() %}
+      {{ key }}: {{ value }}
+    {% endfor %}
+    </li>
+    <br>
+  {% endfor %}
+
+</ul>  
+
+
+{% endblock %}

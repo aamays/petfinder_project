@@ -21,17 +21,16 @@ class User(db.Model):
     user_id = db.Column(db.Integer,
                         autoincrement=True,
                         primary_key=True)
-    email = db.Column(db.String(30), nullable=False) # this is the username
-    password = db.Column(db.String(30), nullable=False)
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
-    phone = db.Column(db.String(15), nullable=True)
+    email = db.Column(db.String(30), nullable=False) # this is the username
+    password = db.Column(db.String(30), nullable=False)
     address1 = db.Column(db.String(64), nullable=True)
     address2 = db.Column(db.String(64), nullable=True)        
     city = db.Column(db.String(15), nullable=True)
-    state = db.Column(db.String(10), nullable=True)
-    country = db.Column(db.String(10), nullable=True)    
+    state = db.Column(db.String(10), nullable=True)   
     zipcode = db.Column(db.String(10), nullable=True)
+    phone = db.Column(db.String(15), nullable=True)
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -48,7 +47,7 @@ class Animal(db.Model):
     animal_id = db.Column(db.Integer,
                          autoincrement=True,
                          primary_key=True)
-    shelter_id = db.Column(db.Integer, nullable=False)
+    shelter_id = db.Column(db.Integer, db.ForeignKey('shelters.shelter_id'), nullable=False)
     species = db.Column(db.String(64), nullable=False)
     name = db.Column(db.String(64), nullable=True)    
     breed = db.Column(db.String(64), nullable=True)
@@ -59,6 +58,9 @@ class Animal(db.Model):
     availability = db.Column(db.String(64), nullable=True)# changes when api is called
     last_update = db.Column(db.DateTime)# changes when api is called
     url_photo = db.Column(db.String(200))
+
+    shelter = db.relationship("Shelter",
+                           backref=db.backref("animals"))
 
     def __repr__(self):
         """Provide helpful representation when printed."""
@@ -101,8 +103,8 @@ class UserAnimal(db.Model):
     user_animal_id = db.Column(db.Integer,
                           autoincrement=True,
                           primary_key=True)
-    animal_id = db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, nullable=False)
+    animal_id = db.Column(db.Integer, db.ForeignKey('animals.animal_id'),nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
 
     # Define relationship to user
     user = db.relationship("User",
@@ -138,3 +140,4 @@ if __name__ == "__main__":
     from server import app
     connect_to_db(app)
     print "Connected to DB."
+    db.create_all()

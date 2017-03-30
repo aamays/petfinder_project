@@ -7,14 +7,16 @@
 
 <p>“The greatness of a nation and its moral progress can be judged by the way its animals are treated.”― Mohandas Karamchand Gandhi
 </p>
+<p><a href="/login">Login</a><br>
+<a href="/register">Register</a></p>
 
 
 <h2>SEARCH FOR YOUR NEXT FUR-EVER FRIEND</h2>
 
 <form action="/search" method="GET">
-  Zip code<input type="text" name="zipcode" value="Ex. 94114">
-<!--   City<input type="text" name="city" value="Ex. San Francisco">
-  State<input type="text" name="state" value="Ex. CA"> -->
+  Zip code<input type="text" name="zipcode" placeholder="94114" required>
+  City<input type="text" name="city" placeholder="San Francisco">
+  State<input type="text" name="state" placeholder="CA">
   
   Animal
     <select name="animal">
@@ -28,9 +30,16 @@
   Age
     <select name="age">
      {% for age in ages %}
-      <option value="{{ age }}">{{ age }}</option>
+      <option value="{{ age }}">{{ age.lower() }}</option>
      {% endfor %}     
     </select>    
+
+   Size
+    <select name="size">
+     {% for size in sizes %}
+      <option value="{{ size }}">{{ size }}</option>
+     {% endfor %}     
+    </select>     
 
   Gender
     <select name="gender">

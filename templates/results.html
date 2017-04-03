@@ -5,21 +5,21 @@
 
 <h1>SEARCH RESULTS</h1>
 
-<p>You searched for a {{ animal }}, of {{ age.lower() }} age, size {{ size }} in location {{ location }}.<br>
+
+
+<p>You searched for a {{ genders[gender] }} {{ animal }} in location {{ location }}.
+<p>For more advanced search criteria including age, breed, size, shelter location, and contact information, register for an account now.</p>
+<br>
 Here are your results: </p>
 
 <ul>
-
   {% for pet in pets %}
     <li>
-    {% for key, value in pet.items() %}
-      {{ key }}: {{ value }}
-    {% endfor %}
+    {{ pet.name}} can be seen in shelter with the ID {{ pet.shelterId }} in {{ pet.contact.city }}. 
+    <img src = "{{ pet.photos[3]['url']}}" />
     </li>
     <br>
   {% endfor %}
-
 </ul>  
-
 
 {% endblock %}

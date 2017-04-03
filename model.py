@@ -116,8 +116,35 @@ class UserAnimal(db.Model):
 
     def __repr__(self):
         """Provide helpful representation when printed."""
-        s = "<user_animal_id=%s animal_id=%s, user_id=%s>"
+        s = "<UserAnimal user_animal_id=%s animal_id=%s user_id=%s>"
         return s %(self.user_animal_id, self.animal_id, self.user_id)
+
+class UserSearch(db.Model):
+    """Association table that enables users to capture and refresh their searches."""
+
+    __tablename__ = "usersearch"
+
+    user_search_id = db.Column(db.Integer,
+                          autoincrement=True,
+                          primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    species = db.Column(db.String(64), nullable=False) # called animal in the server
+    age = db.Column(db.String(64), nullable=True)
+    size = db.Column(db.String(64), nullable=True)
+    gender = db.Column(db.String(64), nullable=True)
+    breed = db.Column(db.String(100), nullable=True)
+    
+    # Define relationship to user
+    user = db.relationship("User",
+                           backref=db.backref("usersearch"))
+
+
+    def __repr__(self):
+        """Provide helpful representation when printed."""
+        s = "<UserSearch user_search_id=%s user_id=%s species=%s age=%s \
+             size=%s gender=%s>"
+        return s %(self.user_search_id, self.user_id, self.species, self.age, 
+                   self.size, self.gender)        
 
 #####################################################################
 # Helper functions

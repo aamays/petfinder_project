@@ -1,8 +1,8 @@
-"""BFF Finder."""
+"""Paws Finder. Uses AJAX and JSON"""
 
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, request, flash, redirect, session
+from flask import Flask, render_template, request, flash, redirect, session, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
 from model import connect_to_db, db, User, Animal, Shelter, UserAnimal
@@ -31,61 +31,13 @@ def index():
 
     animals = ["dog", "cat"]
     ages = ["Baby", "Young", "Adult", "Senior"]
-    sizes = ["S", "M", "L", "XL"] 
-    # Consider creating a dictionary where key is S, value is small
-    # pass key value pairs to jinja, same for ages
-    genders = ["F", "M"] # F is female, M is male
+    sizes = {'S': 'small', 'M': 'medium', 'L': 'large', 'XL': 'extra large'}
+    genders = {"F": "female", "M": "male"}
+    # breeds = add this
 
     return render_template("home.html", 
                            animals=animals, ages=ages, 
                            sizes=sizes, genders=genders)
-
-
-@app.route("/search", methods=["GET"])
-def process_search():
-    """Process form variables from search fields."""
-    
-    # Get form variables
-    zipcode = request.args.get("zipcode")
-    city = request.args.get("city") 
-    state = request.args.get("state") 
-
-    # assign location to either zipcode or city, state
-
-    if not zipcode:
-        location = city + " " + state 
-    else:
-        location = zipcode    
-
-    animals = request.args.get("animal") 
-    # breed= request.form["<breed>"] # figure this out
-    ages = request.args.get("age")
-    sizes = request.args.get("size")
-    genders = request.args.get("gender")
-
-    # Call api and process search.
-    pets = api.pet_find(location=location,
-                            animal=animals, 
-                            age=ages,
-                            size=sizes,
-                            gender=genders, 
-                            output="basic", 
-                            count=25)
-
-    pet_list = []
-    # loop through a range from the api call
-    # append to pet_list
-    for i in range(10):
-        pet = pets.next()
-        pet_list.append(pet)        
-   
-    return render_template("results.html",
-                            location=zipcode,
-                            animal=animals, 
-                            age=ages,
-                            size=sizes,
-                            gender=genders,  
-                            pets=pet_list)
 
 
 @app.route('/register', methods=['GET'])
@@ -100,19 +52,19 @@ def register_process():
     """Process registration."""
 
     # Get form variables from reg form
-    first_name = request.form["firstname"]
-    last_name = request.form["lastname"] 
-    email = request.form["email"]
-    password = request.form["password"]
-    address1 = request.form["address1"]
-    address2 = request.form["address2"]       
-    city = request.form["city"]
-    state = request.form["state"]   
-    zipcode = request.form["zipcode"] 
-    phone = request.form["phone"]
-
+    first_name = request.form.get("firstname")
+    last_name = request.form.get("lastname")
+    email = request.form.get("email") 
+    password = request.form.get("password")    
+    address1 = request.form.get("address1")    
+    address2 = request.form.get("address2")      
+    city = request.form.get("city")
+    state = request.form.get("state")    
+    zipcode = request.form.get("zipcode")    
+    phone = request.form.get("phone")
+    
     new_user = User(first_name=first_name, last_name=last_name,
-                    email=email, password=password, 
+                  email=email, password=password, 
                     address1=address1, address2=address2,
                     city=city, state=state,
                     zipcode=zipcode, phone=phone)
@@ -120,7 +72,7 @@ def register_process():
     db.session.add(new_user)
     db.session.commit()
 
-    flash("Welcome %s %s!  You now have an account with Find Your BFF. \
+    flash("Welcome %s %s!  You now have an account with Fur Finder. \
           Your username is your email address, %s." 
           % (first_name, last_name, email))
     return redirect("/")
@@ -133,30 +85,172 @@ def login_form():
     return render_template("login_form.html")
 
 
-@app.route('/login', methods=['POST'])
-def login_process():
-    """Process login."""
+@app.route("/login.json", methods=["POST"])
+def perform_login():
+    """Checks credentials, processes log in"""
 
-    # Get form variables
-    email = request.form["email"]
-    password = request.form["password"]
-    user = User.query.filter_by(email=email).first()
+    # Get credentials from form 
+    email = request.form.get("email")
+    password = request.form.get("password")
+    user = User.query.filter_by(email=email).first()    
 
     if not user:
-        flash("No user exists, you need to register.")
-        return redirect("/register")
-
+        results = {"success": False,
+        "message": "No user exists, please register."}
+        return jsonify(results)  
+           
     if user.password != password:
-        flash("Incorrect password, try again.")
-        return redirect("/login")
-
+        results = {"success": False,
+        "message": "Invalid username/password, try again."}
+        return jsonify(results)  
+    
     session["user_id"] = user.user_id
 
-    flash("You are logged in")
-    return render_template("user.html", 
-                            user=user,
-                           email=email, 
-                           password=password)
+    results = {"success": True,
+              "firstname": user.first_name}
+    
+    return jsonify(results) 
+
+@app.route("/logout")
+def logout_navbar():
+    """Log out."""
+    del session["user_id"]
+    return redirect("/")
+
+@app.route("/logout.json")
+def logout_json():
+    """Log out."""
+
+    del session["user_id"]
+    results = {"success": True,
+              "message": "You are now logged out."}
+    
+    return jsonify(results)
+
+
+@app.route("/search", methods=["GET"])
+def process_search():
+    """Process form variables from quick search fields. No account needed."""
+    
+    genders = {"F": "female", "M": "male"}
+
+    # Get form variables
+    zipcode = request.args.get("zipcode")
+    city = request.args.get("city") 
+    state = request.args.get("state") 
+    animal = request.args.get("animal")  
+    gender = request.args.get("gender")
+
+    # assign location to either zipcode or city, state
+    if not zipcode:
+        location = city + " " + state 
+    else:
+        location = zipcode    
+
+    # Call api and process search, note variables are singular.
+    pets = api.pet_find(location=location,
+                            animal=animal, 
+                            gender=gender, 
+                            output="basic", 
+                            count=50)
+
+    # import pdb; pdb.set_trace()
+
+    pet_list = []
+    # loop through a range from the api call
+    # append to pet_list
+    for i in range(20):
+        pet = pets.next()
+        pet_list.append(pet)        
+   
+    return render_template("results.html",
+                            location=location,
+                            animal=animal, 
+                            genders=genders, # dictionary that contain gender data 
+                            gender=gender, # user form input
+                            pets=pet_list)
+
+
+
+@app.route("/search-complete", methods=["GET"])
+def process_complete_earch():
+    """Process form variables from complete search fields. User is logged in."""
+    
+    sizes = {'S': 'small', 'M': 'medium', 'L': 'large', 'XL': 'extra large'}
+    genders = {"F": "female", "M": "male"}
+
+    # Get form variables
+    zipcode = request.args.get("zipcode")
+    city = request.args.get("city") 
+    state = request.args.get("state") 
+    animal = request.args.get("animal")  
+    age = request.args.get("age")
+    size = request.args.get("size")
+    gender = request.args.get("gender")
+    breed= request.args.get("breed")
+
+    # add condition for dog breed versus cat breed
+
+    # assign location to either zipcode or city, state
+    if not zipcode:
+        location = city + " " + state 
+    else:
+        location = zipcode    
+
+    # Call api and process complete search, note variables are singular.
+    pets = api.pet_find(location=location,
+                            animal=animal, 
+                            age=age,
+                            size=size,
+                            gender=gender, 
+                            breed=breed,
+                            output="basic", 
+                            count=50)
+
+    # import pdb; pdb.set_trace()
+
+    pet_list = []
+    # loop through a range from the api call
+    # append to pet_list
+    for i in range(20):
+        pet = pets.next()
+        pet_list.append(pet)        
+   
+    return render_template("results_complete.html",
+                            location=location,
+                            animal=animal, 
+                            age=age,
+                            sizes=sizes, # dictionary that contain sizes data
+                            size=size, # user form input
+                            genders=genders, # dictionary that contain gender data 
+                            gender=gender, # user form input
+                            breed=breed,
+                            pets=pet_list)    
+
+
+@app.route("/search-saved")
+def save_search_results():
+    """Save search criteria."""
+
+    # Get form variables
+    zipcode = request.args.get("zipcode")
+    city = request.args.get("city") 
+    state = request.args.get("state") 
+    animal = request.args.get("animal")  
+    age = request.args.get("age")
+    size = request.args.get("size")
+    gender = request.args.get("gender")
+    breed= request.args.get("breed")
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    species = db.Column(db.String(64), nullable=False) # called animal in the server
+    age = db.Column(db.String(64), nullable=True)
+    size = db.Column(db.String(64), nullable=True)
+    gender = db.Column(db.String(64), nullable=True)
+    breed = db.Column(db.String(100), nullable=True)    
+
+
+
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point
@@ -164,6 +258,7 @@ if __name__ == "__main__":
 
     # Do not debug for demo
     app.debug = True
+    app.jinja_env.auto_reload = app.debug
 
     connect_to_db(app)
 

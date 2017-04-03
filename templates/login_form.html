@@ -1,25 +1,35 @@
 {% extends 'base.html' %}
 {% block content %}
 
-    <h1>Login</h1>
-    <form action="/login" method="POST">
+<!-- This uses AJAX -->
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- our javascript -->
+    <script src="static/pawsfinder.js"></script>
 
-        <div>
-            <label>Email:
-                <input type="email" name="email" required>
-            </label>
-        </div>
+<p id="logged-in-status">You are logged out.</p>
 
-        <div>
-            <label>Password:
-                <input type="password" name="password" required>
-            </label>
-        </div>
+<h1>Login</h1>
+<form id="login-form">
 
-        <div>
-            <input type="submit" value="Log In">
-        </div>
+  <div>
+    <label>Email
+        <input id="email-field" type="email" name="email" required>
+    </label>
+  </div>
 
-    </form>
+  <div>
+    <label>Password
+        <input id="password-field" type="password" name="password" required>
+    </label>
+  </div>
+
+  <div>
+    <input type="submit" value="Log In">
+  </div>
+
+</form>
+
+<button id="logout-button" hidden>Log out!</button>
+<p id="logout-paragraph" hidden>Thanks for visiting Paws Finder!</p>
 
 {% endblock %}

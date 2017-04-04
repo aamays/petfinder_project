@@ -69,6 +69,8 @@ def register_process():
                     city=city, state=state,
                     zipcode=zipcode, phone=phone)
 
+    # if new_user in # make sure to add that a user is already registered
+
     db.session.add(new_user)
     db.session.commit()
 
@@ -173,7 +175,7 @@ def process_search():
 
 
 @app.route("/search-complete", methods=["GET"])
-def process_complete_earch():
+def process_complete_search():
     """Process form variables from complete search fields. User is logged in."""
     
     sizes = {'S': 'small', 'M': 'medium', 'L': 'large', 'XL': 'extra large'}
@@ -188,7 +190,15 @@ def process_complete_earch():
     size = request.args.get("size")
     gender = request.args.get("gender")
     breed= request.args.get("breed")
-
+    # dict to enable users to save their searches
+    search_info = {'zipcode':zipcode,
+                   'animal': animal,
+                   'age': age,
+                   'size': size,
+                   'gender': gender,
+                   'breed': breed}
+                   
+    session['last_search'] = search_info
     # add condition for dog breed versus cat breed
 
     # assign location to either zipcode or city, state
@@ -225,31 +235,38 @@ def process_complete_earch():
                             genders=genders, # dictionary that contain gender data 
                             gender=gender, # user form input
                             breed=breed,
-                            pets=pet_list)    
+                            pets=pet_list,
+                            search_info = search_info)    
 
 
-@app.route("/search-saved")
+@app.route("/save-search.json", methods=["POST"])
 def save_search_results():
     """Save search criteria."""
 
     # Get form variables
-    zipcode = request.args.get("zipcode")
-    city = request.args.get("city") 
-    state = request.args.get("state") 
-    animal = request.args.get("animal")  
-    age = request.args.get("age")
-    size = request.args.get("size")
-    gender = request.args.get("gender")
-    breed= request.args.get("breed")
+    zipcode = request.form.get("zipcode")
+    animal = request.form.get("animal")  
+    age = request.form.get("age")
+    size = request.form.get("size")
+    gender = request.form.get("gender")
+    breed= request.form.get("breed")
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    species = db.Column(db.String(64), nullable=False) # called animal in the server
-    age = db.Column(db.String(64), nullable=True)
-    size = db.Column(db.String(64), nullable=True)
-    gender = db.Column(db.String(64), nullable=True)
-    breed = db.Column(db.String(100), nullable=True)    
+    saved_searches = UserSearch(user_id=user_id,
+                                zipcode=session['last_search']['zipcode'],  
+                                animal=session['last_search']['animal'], 
+                                age=session['last_search']['age'],  
+                                size=session['last_search']['size'],  
+                                gender=session['last_search']['gender'],
+                                breed=session['last_search']['breed'])
 
+    # We need to add to the session or it won't ever be stored
+    db.session.add(saved_searches)
+    # Once we're done, we should commit our work
+    db.session.commit() 
 
+    results = {"message": "Your search was saved."}
+    
+    return jsonify(results)    
 
 
 if __name__ == "__main__":

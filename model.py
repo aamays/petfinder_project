@@ -48,7 +48,7 @@ class Animal(db.Model):
                          autoincrement=True,
                          primary_key=True)
     shelter_id = db.Column(db.Integer, db.ForeignKey('shelters.shelter_id'), nullable=False)
-    species = db.Column(db.String(64), nullable=False)
+    animal = db.Column(db.String(64), nullable=False)
     name = db.Column(db.String(64), nullable=True)    
     breed = db.Column(db.String(64), nullable=True)
     age = db.Column(db.String(64), nullable=True)
@@ -128,7 +128,8 @@ class UserSearch(db.Model):
                           autoincrement=True,
                           primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    species = db.Column(db.String(64), nullable=False) # called animal in the server
+    zipcode = db.Column(db.String(10), nullable=True)    
+    animal = db.Column(db.String(64), nullable=False) 
     age = db.Column(db.String(64), nullable=True)
     size = db.Column(db.String(64), nullable=True)
     gender = db.Column(db.String(64), nullable=True)
@@ -153,7 +154,7 @@ def connect_to_db(app):
     """Connect the database to our Flask app."""
 
     # Configure to use our PostgreSQL database
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///petfinder'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///pawsfinder'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)

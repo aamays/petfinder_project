@@ -3,7 +3,7 @@
 {% block content %}
 
 
-<h1>SEARCH RESULTS</h1>
+<h1>QUICK SEARCH RESULTS</h1>
 
 
 
@@ -16,7 +16,7 @@ Here are your results: </p>
   {% for pet in pets %}
     <li>
     {{ pet.name}} can be seen in shelter with the ID {{ pet.shelterId }} in {{ pet.contact.city }}. 
-    <img src = "{{ pet.photos[3]['url']}}" />
+    <img src = "{{ pet.photos[1]['url']}}" />
     </li>
     <br>
   {% endfor %}

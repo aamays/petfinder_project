@@ -23,7 +23,7 @@ class User(db.Model):
                         primary_key=True)
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
-    email = db.Column(db.String(30), nullable=False) # this is the username
+    email = db.Column(db.String(30), nullable=False, unique=True) # this is the username
     password = db.Column(db.String(30), nullable=False)
     address1 = db.Column(db.String(64), nullable=True)
     address2 = db.Column(db.String(64), nullable=True)        
@@ -134,6 +134,8 @@ class UserSearch(db.Model):
     size = db.Column(db.String(64), nullable=True)
     gender = db.Column(db.String(64), nullable=True)
     breed = db.Column(db.String(100), nullable=True)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(500), nullable=True)
     
     # Define relationship to user
     user = db.relationship("User",
@@ -142,9 +144,8 @@ class UserSearch(db.Model):
 
     def __repr__(self):
         """Provide helpful representation when printed."""
-        s = "<UserSearch user_search_id=%s user_id=%s species=%s age=%s \
-             size=%s gender=%s>"
-        return s %(self.user_search_id, self.user_id, self.species, self.age, 
+        s = "<UserSearch user_search_id=%s user_id=%s animal=%s age=%s size=%s gender=%s>"
+        return s %(self.user_search_id, self.user_id, self.animal, self.age, 
                    self.size, self.gender)        
 
 #####################################################################

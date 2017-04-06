@@ -75,12 +75,16 @@ method="GET">
   <option value="WY">WY</option>
 </select>
   
-  Animal
-    <select name="animal">
+<!--   Animal
+    <select id="animal-type" name="animal" required>
     {% for animal in animals %}
       <option value="{{ animal }}">{{ animal }}</option>
     {% endfor %}  
-    </select>
+    </select> -->
+
+  Animal
+  <input type="radio" name="animal" value="dog" checked>Dog
+  <input id="cat" type="radio" name="animal" value="cat">Cat  
     
   Gender
     <select name="gender">
@@ -105,7 +109,20 @@ method="GET">
      {% endfor %}     
     </select> 
 
-  Breed<input type="text" name="breed" placeholder="domestic short hair">        
+  Breeds
+  <select name="dog-breeds" id="dogs">
+      {% for vdog in dog_breeds["dogs"] %}
+      <option value="{{ vdog }}">{{ vdog }}</option>
+      {% endfor %}
+  </select>
+  
+  <select name="cat-breeds" id="cats">
+      {% for vcat in cat_breeds["cats"] %}
+      <option value="{{ vcat }}">{{ vcat }}</option>
+      {% endfor %}
+  </select>       
+
+        
 
   {% endif %}
 

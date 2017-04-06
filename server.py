@@ -5,7 +5,7 @@ from jinja2 import StrictUndefined
 from flask import Flask, render_template, request, flash, redirect, session, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
-from model import connect_to_db, db, User, Animal, Shelter, UserAnimal
+from model import connect_to_db, db, User, Animal, Shelter, UserAnimal, UserSearch
 
 import os, sys
 import petfinder
@@ -33,11 +33,19 @@ def index():
     ages = ["Baby", "Young", "Adult", "Senior"]
     sizes = {'S': 'small', 'M': 'medium', 'L': 'large', 'XL': 'extra large'}
     genders = {"F": "female", "M": "male"}
-    # breeds = add this
+    dog_breeds = {"dogs": ["None", "American Bulldog", "Australian Cattledog", 
+                  "American Staffordshire Terrier", "Beagle", "Border Collie", 
+                  "Boxer", "Chihuahua", "Dachshund", "German Shepherd","Labrador Retriever", 
+                  "Mixed Breed", "Pit Bull Terrier", "Yorkshire Terrier"]}
+    cat_breeds = {"cats": ["None", "American Shorthair", "Calico", "Domestic Long Hair", 
+                 "Domestic Medium Hair", "Domestic Short Hair", "Siamese", "Tabby", 
+                 "Tabby-Brown", "Tabby-Gray","Tabby-Orange", "Tortoiseshell", "Tuxedo"]}
 
     return render_template("home.html", 
                            animals=animals, ages=ages, 
-                           sizes=sizes, genders=genders)
+                           sizes=sizes, genders=genders,
+                           dog_breeds=dog_breeds,
+                           cat_breeds=cat_breeds)
 
 
 @app.route('/register', methods=['GET'])
@@ -74,7 +82,7 @@ def register_process():
     db.session.add(new_user)
     db.session.commit()
 
-    flash("Welcome %s %s!  You now have an account with Fur Finder. \
+    flash("Welcome %s %s!  You now have an account with Paws Finder. \
           Your username is your email address, %s." 
           % (first_name, last_name, email))
     return redirect("/")
@@ -147,7 +155,9 @@ def process_search():
     if not zipcode:
         location = city + " " + state 
     else:
-        location = zipcode    
+        location = zipcode 
+
+
 
     # Call api and process search, note variables are singular.
     pets = api.pet_find(location=location,
@@ -190,16 +200,15 @@ def process_complete_search():
     size = request.args.get("size")
     gender = request.args.get("gender")
     breed= request.args.get("breed")
-    # dict to enable users to save their searches
-    search_info = {'zipcode':zipcode,
-                   'animal': animal,
-                   'age': age,
-                   'size': size,
-                   'gender': gender,
-                   'breed': breed}
+
+    search_info = {"zipcode":zipcode,
+                   "animal": animal,
+                   "age": age,
+                   "size": size,
+                   "gender": gender,
+                   "breed": breed}
                    
-    session['last_search'] = search_info
-    # add condition for dog breed versus cat breed
+    session["last_search"] = search_info 
 
     # assign location to either zipcode or city, state
     if not zipcode:
@@ -222,7 +231,7 @@ def process_complete_search():
     pet_list = []
     # loop through a range from the api call
     # append to pet_list
-    for i in range(20):
+    for i in range(30):
         pet = pets.next()
         pet_list.append(pet)        
    
@@ -236,37 +245,60 @@ def process_complete_search():
                             gender=gender, # user form input
                             breed=breed,
                             pets=pet_list,
-                            search_info = search_info)    
+                            search_info=search_info)    
 
 
 @app.route("/save-search.json", methods=["POST"])
 def save_search_results():
     """Save search criteria."""
 
-    # Get form variables
-    zipcode = request.form.get("zipcode")
-    animal = request.form.get("animal")  
-    age = request.form.get("age")
-    size = request.form.get("size")
-    gender = request.form.get("gender")
-    breed= request.form.get("breed")
+    #get credentials from form
+    title = request.form.get("title")
+    description = request.form.get("description")
 
-    saved_searches = UserSearch(user_id=user_id,
-                                zipcode=session['last_search']['zipcode'],  
-                                animal=session['last_search']['animal'], 
-                                age=session['last_search']['age'],  
-                                size=session['last_search']['size'],  
-                                gender=session['last_search']['gender'],
-                                breed=session['last_search']['breed'])
+    saved_search = UserSearch(user_id=session["user_id"],
+                              zipcode=session['last_search']['zipcode'],  
+                              animal=session['last_search']['animal'], 
+                              age=session['last_search']['age'],  
+                              size=session['last_search']['size'],  
+                              gender=session['last_search']['gender'],
+                              breed=session['last_search']['breed'],
+                              title=title,
+                              description=description)
 
     # We need to add to the session or it won't ever be stored
-    db.session.add(saved_searches)
+    db.session.add(saved_search)
     # Once we're done, we should commit our work
     db.session.commit() 
 
-    results = {"message": "Your search was saved."}
-    
-    return jsonify(results)    
+    results = {"success": True, 
+    "message": "Your search is saved!"}
+
+    return jsonify(results)  
+
+@app.route("/get-saved-searches.json", methods=["GET"])
+def get_saved_searches():
+    """Retrieve saved searches from dB."""
+    loggedin_user = session.get("user_id")#session is a dict, so .get() enables 
+    #value of user_id to be returned
+
+    if loggedin_user:
+        searches = UserSearch.query.filter(UserSearch.user_id == loggedin_user).all()
+    else:
+        flash("You need to be logged in to see your saved searches!  Do it NOW!")  
+        return redirect("/")     
+
+    saved_searches = []
+
+    for search in searches:
+        search_dict = {}
+        search_dict["title"] = search.title
+        search_dict["description"] = search.description
+        search_dict["usersearch_id"] = search.user_search_id
+        saved_searches.append(search_dict)
+
+
+    return jsonify(saved_searches)       
 
 
 if __name__ == "__main__":

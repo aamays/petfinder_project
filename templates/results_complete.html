@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>COMPLETE SEARCH RESULTS</h1>
+
+<br>
+<p>You searched for a {{ sizes[size] }} {{ genders[gender] }} {{ animal }} of breed {{ breed }} in location {{ location }}.<br>
+<!-- Text to save search results -->
+  <div id="save-status"> Check box to save this search
+  <input id="save-box" type="checkbox" name="searches" value="Yes"/>
+  </div>
+</p>
+<div id="save-search-form">
+    <form action="/save-search.json" method="POST">
+      <label>
+          Search Title <input id="saved-title" type="text" name="title">
+      </label>
+      <label>
+          Description <input id="saved-description" type="text" name="description">
+      </label>
+
+    <input id="save-search-button" type="submit" value="Save">
+    
+    </form>
+  </p>
+</div>
+<ul> 
+{% if "user_id" in session %}
+    {% for pet in pets %}
+            
+      <li>  {{ pet.name}} is a {{ pet.breeds }}. {{ pet.description }}.  {{ pet.contact }} 
+        <img src = "{{ pet.photos[3]['url']}}" />  </li>  
+        
+    {% endfor %}
+{% endif %}
+</ul>
+
+{% endblock %}

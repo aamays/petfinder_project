@@ -9,6 +9,7 @@ from model import connect_to_db, db, User, Animal, Shelter, UserAnimal, UserSear
 
 import os, sys
 import petfinder
+from sqlalchemy import exc # this handles Integrity Errors
 
 # Instantiate petfinder api with my credentials.
 api = petfinder.PetFinderClient(api_key="3edba6cadbd9d8fcdc5864a85e648862", 
@@ -76,16 +77,20 @@ def register_process():
                     address1=address1, address2=address2,
                     city=city, state=state,
                     zipcode=zipcode, phone=phone)
-
-    # if new_user in # make sure to add that a user is already registered
-
-    db.session.add(new_user)
-    db.session.commit()
+    
+    # handles registration duplicate, flashes message
+    try:     
+        db.session.add(new_user)
+        db.session.commit()
+    except exc.IntegrityError:
+        flash("User already exists. Please login")
+        db.session().rollback() 
+          
 
     flash("Welcome %s %s!  You now have an account with Paws Finder. \
           Your username is your email address, %s." 
           % (first_name, last_name, email))
-    return redirect("/")
+    return redirect("/register")
 
 
 @app.route('/login', methods=['GET'])
@@ -142,7 +147,7 @@ def logout_json():
 def process_search():
     """Process form variables from quick search fields. No account needed."""
     
-    genders = {"F": "female", "M": "male"}
+    # genders = {"F": "female", "M": "male"}
 
     # Get form variables
     zipcode = request.args.get("zipcode")
@@ -150,6 +155,7 @@ def process_search():
     state = request.args.get("state") 
     animal = request.args.get("animal")  
     gender = request.args.get("gender")
+    # message = "Your search yielded no results. Try different criteria."
 
     # assign location to either zipcode or city, state
     if not zipcode:
@@ -160,11 +166,17 @@ def process_search():
 
 
     # Call api and process search, note variables are singular.
-    pets = api.pet_find(location=location,
+    # Error handler for when search yields no results.
+    try:
+        pets = api.pet_find(location=location,
                             animal=animal, 
                             gender=gender, 
                             output="basic", 
                             count=50)
+    except jinja2.exceptions.UndefinedError:
+        flash("Your search yielded no results. Try different criteria.")
+        return redirect("/")
+        
 
     # import pdb; pdb.set_trace()
 
@@ -183,13 +195,12 @@ def process_search():
                             pets=pet_list)
 
 
-
 @app.route("/search-complete", methods=["GET"])
 def process_complete_search():
     """Process form variables from complete search fields. User is logged in."""
     
     sizes = {'S': 'small', 'M': 'medium', 'L': 'large', 'XL': 'extra large'}
-    genders = {"F": "female", "M": "male"}
+    genders = {"F": "female", "M": "male"}# figure out why i need this
 
     # Get form variables
     zipcode = request.args.get("zipcode")
@@ -199,7 +210,11 @@ def process_complete_search():
     age = request.args.get("age")
     size = request.args.get("size")
     gender = request.args.get("gender")
-    breed= request.args.get("breed")
+    if animal == "dog":
+        breed = request.args.get("dog-breeds")
+    else:   
+        breed = request.args.get("cat-breeds") 
+
 
     search_info = {"zipcode":zipcode,
                    "animal": animal,
@@ -216,7 +231,6 @@ def process_complete_search():
     else:
         location = zipcode    
 
-    # Call api and process complete search, note variables are singular.
     pets = api.pet_find(location=location,
                             animal=animal, 
                             age=age,
@@ -225,6 +239,7 @@ def process_complete_search():
                             breed=breed,
                             output="basic", 
                             count=50)
+       
 
     # import pdb; pdb.set_trace()
 
@@ -232,8 +247,14 @@ def process_complete_search():
     # loop through a range from the api call
     # append to pet_list
     for i in range(30):
-        pet = pets.next()
-        pet_list.append(pet)        
+        try:
+            pet = pets.next()
+            pet_list.append(pet)   
+        except: 
+            break    
+
+    # print type(pet_list[0]["photos"])
+
    
     return render_template("results_complete.html",
                             location=location,

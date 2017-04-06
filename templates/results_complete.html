@@ -29,8 +29,11 @@
 {% if "user_id" in session %}
     {% for pet in pets %}
             
-      <li>  {{ pet.name}} is a {{ pet.breeds }}. {{ pet.description }}.  {{ pet.contact }} 
-        <img src = "{{ pet.photos[3]['url']}}" />  </li>  
+      <li>  {{ pet.name}} is a {{ pet.breeds }}. {{ pet.description }}.  {{ pet.contact }}
+      {% if pet["photos"] | length >= 4 %}
+        <img src = "{{ pet.photos[3]['url']}}"> 
+      </li>  
+      {% endif %} 
         
     {% endfor %}
 {% endif %}

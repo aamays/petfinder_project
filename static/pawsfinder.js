@@ -62,16 +62,16 @@ $("#logout-button").click(doLogout);
   }; //end of logout function
 
 //THIS CODE IS FOR HIDING OR SHOWING THE BREEDS DROPDOWN
-    $("#cats").hide();
+    $("#cats").hide(); // hide this when the page loads
+  $("#animal-type").on("change", function() {
+        if ($("#animal-type").find(":selected").text() !== "dog") {
+              $("#dogs").hide();
+              $("#cats").show();
+      } else {
+              $("#cats").hide();
+              $("#dogs").show();
+      }
 
-  $("#cat").click(function(){
-    $("#dogs").hide();
-    $("#cats").show();
   });
-
-    $("#dogs").click(function(){
-    $("#cats").hide();
-  });
-
 
  });//end of document ready function

@@ -48,13 +48,23 @@ $("#saved-searches").on('click', function(){
  
     //make the AJAX request, event handler
     $.get("/get-saved-searches.json", function(results){
-          console.log("results: ", results);
+          console.log("results: ", results.results);
           
-          for (var i = 0; i < results.length; i++){
-            $("#saved-title").append("<p> Title: "+results[i].title 
-                 + " &nbsp; Description: " + results[i].description + "</p>");
+          for (var i = 0; i < results.results.length; i++){
+            $("#saved-title").append("<p> Title: "+results.results[i].title 
+                 + " &nbsp; Description: " + results.results[i].description + "</p>");
           }     
     });
   }); // end of event listener
+
+//CODE FOR MODAL
+//event listener for Modal
+$("#saved-searches").on("click", function(){
+  $("#save-modal").modal("show");
+
+
+
+});
+
 
 }); //end of document ready function

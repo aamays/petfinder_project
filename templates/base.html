@@ -6,14 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Paws Finder</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="static/saved_paws_modal.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://code.jquery.com/jquery.js"></script>
 
     <!-- my javascript -->
     <script src="static/pawsfinder.js"></script>  
-    <script src="static/savedpaws.js"></script>
 <!--     <script src="static/zipcode.js"></script>   --><!-- TO DO, nice to have -->  
          
 </head>
@@ -30,9 +27,11 @@
 <a href="/register">Register</a>
 <br>
 <a href="/">Home</a></p>
-<!-- <div id="user-saved-title"></div> -->
+<div id="saved-title"></div>
 
 <hr>
+    <script src="static/savedpaws.js"></script>
+
 
 {% for flash in get_flashed_messages() %}
   {{ flash }}
@@ -42,5 +41,25 @@
 {% block content %}
     Put your body here.
 {% endblock %}
+
+<div class="modal fade" id="save-modal">
+  <div class="modal-dialog"  role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Saved Searches</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Modal body text goes here.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

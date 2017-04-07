@@ -1,4 +1,4 @@
-"""Paws Finder. Uses AJAX and JSON"""
+"""Paws Finder. Uses Flask, Jinja, AJAX and JSON"""
 
 from jinja2 import StrictUndefined
 
@@ -308,8 +308,10 @@ def get_saved_searches():
         # search_dict["description"] = search.description
         # search_dict["usersearch_id"] = search.user_search_id
         saved_searches.append(search.to_dict())   
+    
+    results = {'results': saved_searches}
 
-    return jsonify(saved_searches)       
+    return jsonify(results)    
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point

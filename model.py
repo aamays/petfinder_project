@@ -155,13 +155,25 @@ class UserSearch(db.Model):
     def to_dict(self):
         """Returns a dictionary representing the object"""
 
-        dict_of_obj = {}
+        dict_of_obj = {'user_id': self.user_id, 
+                       'zipcode': self.zipcode,
+                       'animal': self.animal,
+                        'age': self.age,
+                        'size': self.size,
+                        'gender': self.gender,
+                        'breed': self.breed,
+                        'title': self.title,
+                        'description': self.description}
+
+        # dict_of_obj = {}
 
         #iterate through the table's columns, adding the value in each
         #to the dictionary
-        for column_name in self.__mapper__.column_attrs.keys():
-            value = getattr(self, column_name, None)
-            dict_of_obj[column_name] = value
+        # for column_name in self.__mapper__.column_attrs.keys():
+        #     value = getattr(self, column_name, None)
+        #     dict_of_obj[column_name] = value
+
+
 
         #return the completed dictionary
         return dict_of_obj

@@ -1,0 +1,4 @@
+env/
+model.pyc
+server.pyc
+secrets.sh

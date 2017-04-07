@@ -18,7 +18,7 @@
 {% endif %}
 method="GET">
 
-  Zip code<input type="text" name="zipcode" placeholder="94114" required>
+  Zip code<input type="text" name="zipcode" placeholder="94114" maxlength="5" required>
   City<input type="text" name="city" placeholder="San Francisco">
 
 <select name="state">
@@ -81,10 +81,6 @@ method="GET">
       <option value="{{ animal }}">{{ animal }}</option>
     {% endfor %}  
     </select>
-
-<!--   Animal
-  <input id="dog" type="radio" name="animal" value="dog" checked>Dog
-  <input id="cat" type="radio" name="animal" value="cat">Cat  --> 
     
   Gender
     <select name="gender">
@@ -120,9 +116,7 @@ method="GET">
       {% for vcat in cat_breeds["cats"] %}
       <option value="{{ vcat }}">{{ vcat }}</option>
       {% endfor %}
-  </select>       
-
-        
+  </select>              
 
   {% endif %}
 

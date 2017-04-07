@@ -14,7 +14,7 @@
 <div id="save-search-form">
     <form action="/save-search.json" method="POST">
       <label>
-          Search Title <input id="saved-title" type="text" name="title">
+          Search Title <input id="saved-title" type="text" name="title" required>
       </label>
       <label>
           Description <input id="saved-description" type="text" name="description">
@@ -30,7 +30,7 @@
     {% for pet in pets %}
             
       <li>  {{ pet.name}} is a {{ pet.breeds }}. {{ pet.description }}.  {{ pet.contact }}
-      {% if pet["photos"] | length >= 4 %}
+      {% if pet["photos"] | length >= 4 %} <!-- this is the jinja way for finding length -->
         <img src = "{{ pet.photos[3]['url']}}"> 
       </li>  
       {% endif %} 

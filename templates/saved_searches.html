@@ -2,10 +2,7 @@
 
 {% block content %}
 
-
-<h1>QUICK SEARCH RESULTS</h1>
-
-
+<h1>{{ search.name }}</h1>
 
 <p>You searched for a {{ genders[gender] }} {{ animal }} in location {{ location }}.
 <p>For more advanced search criteria including age, breed, size, shelter location, and contact information, register for an account now.</p>
@@ -16,9 +13,7 @@ Here are your results: </p>
   {% for pet in pets %}
     <li>
     {{ pet.name}} can be seen in shelter with the ID {{ pet.shelterId }} in {{ pet.contact.city }}. 
-      {% if pet["photos"] | length >= 4 %} 
-        <img src = "{{ pet.photos[3]['url']}}" />
-      {% endif %}
+    <img src = "{{ pet.photos[1]['url']}}" />
     </li>
     <br>
   {% endfor %}

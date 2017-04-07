@@ -137,6 +137,8 @@ class UserSearch(db.Model):
     breed = db.Column(db.String(100), nullable=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(500), nullable=True)
+
+
     
     # Define relationship to user
     user = db.relationship("User",
@@ -148,7 +150,22 @@ class UserSearch(db.Model):
         s = "<UserSearch user_search_id=%s user_id=%s animal=%s age=%s size=%s gender=%s>"
         return s %(self.user_search_id, self.user_id, self.animal, self.age, 
                    self.size, self.gender)        
+    
 
+    def to_dict(self):
+        """Returns a dictionary representing the object"""
+
+        dict_of_obj = {}
+
+        #iterate through the table's columns, adding the value in each
+        #to the dictionary
+        for column_name in self.__mapper__.column_attrs.keys():
+            value = getattr(self, column_name, None)
+            dict_of_obj[column_name] = value
+
+        #return the completed dictionary
+        return dict_of_obj
+        
 #####################################################################
 # Helper functions
 

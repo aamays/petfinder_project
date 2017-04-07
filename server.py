@@ -12,8 +12,12 @@ import petfinder
 from sqlalchemy import exc # this handles Integrity Errors
 
 # Instantiate petfinder api with my credentials.
-api = petfinder.PetFinderClient(api_key="3edba6cadbd9d8fcdc5864a85e648862", 
-                                api_secret="e3be377653ead49c13322f42134370d0")
+api_key = os.environ["PETFINDER_API_KEY"]
+api_secret = os.environ["PETFINDER_API_SECRET"]
+
+api = petfinder.PetFinderClient(api_key=api_key, 
+                                api_secret=api_secret)
+
 
 
 app = Flask(__name__)
@@ -147,7 +151,7 @@ def logout_json():
 def process_search():
     """Process form variables from quick search fields. No account needed."""
     
-    # genders = {"F": "female", "M": "male"}
+    genders = {"F": "female", "M": "male"}
 
     # Get form variables
     zipcode = request.args.get("zipcode")
@@ -155,7 +159,6 @@ def process_search():
     state = request.args.get("state") 
     animal = request.args.get("animal")  
     gender = request.args.get("gender")
-    # message = "Your search yielded no results. Try different criteria."
 
     # assign location to either zipcode or city, state
     if not zipcode:
@@ -163,21 +166,13 @@ def process_search():
     else:
         location = zipcode 
 
-
-
     # Call api and process search, note variables are singular.
-    # Error handler for when search yields no results.
-    try:
-        pets = api.pet_find(location=location,
+    pets = api.pet_find(location=location,
                             animal=animal, 
                             gender=gender, 
                             output="basic", 
                             count=50)
-    except jinja2.exceptions.UndefinedError:
-        flash("Your search yielded no results. Try different criteria.")
-        return redirect("/")
         
-
     # import pdb; pdb.set_trace()
 
     pet_list = []
@@ -190,7 +185,7 @@ def process_search():
     return render_template("results.html",
                             location=location,
                             animal=animal, 
-                            genders=genders, # dictionary that contain gender data 
+                            genders=genders, #dictionary containing gender info 
                             gender=gender, # user form input
                             pets=pet_list)
 
@@ -239,7 +234,6 @@ def process_complete_search():
                             breed=breed,
                             output="basic", 
                             count=50)
-       
 
     # import pdb; pdb.set_trace()
 
@@ -252,9 +246,6 @@ def process_complete_search():
             pet_list.append(pet)   
         except: 
             break    
-
-    # print type(pet_list[0]["photos"])
-
    
     return render_template("results_complete.html",
                             location=location,
@@ -312,15 +303,13 @@ def get_saved_searches():
     saved_searches = []
 
     for search in searches:
-        search_dict = {}
-        search_dict["title"] = search.title
-        search_dict["description"] = search.description
-        search_dict["usersearch_id"] = search.user_search_id
-        saved_searches.append(search_dict)
-
+        # search_dict = {}
+        # search_dict["title"] = search.title
+        # search_dict["description"] = search.description
+        # search_dict["usersearch_id"] = search.user_search_id
+        saved_searches.append(search.to_dict())   
 
     return jsonify(saved_searches)       
-
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the point
